@@ -1,3 +1,0 @@
-version = 'MMult_v0 + test_fp32';
-TFLOPS is: 37230.964056
-average error is: 1.000000

@@ -3,20 +3,20 @@
 
 #include "parameters.h"
 //#include "MMult_v0.cu"
-//#include "comp_mat.cpp"
+//#include "CompareMat.cpp"
 //#include "gen_mat.cu"
-//#include "MMult_ref.cpp"
+//#include "MatMulRef.cpp"
 //#include "tran_mat.cu"
 
 #include <cuda_runtime.h>
 #include <cuda_fp16.h>
 
-void MMult_ref(int, int, int, float *, int , float *, int, float *, int);
-void MMult_fp16(int, int, int, __half *, int, __half *, int, __half *, int);
-void gen_mat_fp32(int, int, float*);
+void MatMulRef(int, int, int, float *, int , float *, int, float *, int);
+void MatMulFP16(int, int, int, __half *, int, __half *, int, __half *, int);
+void GenMatFP32(int, int, float*);
 void mat_32_16(int, int, float *, __half *);
 void mat_16_32(int, int, __half *, float *);
-float comp_mat(int, int, float *, float *);
+float CompareMat(int, int, float *, float *);
 
 int main(){
     int m=M, n=N, k=K;
@@ -47,13 +47,13 @@ int main(){
     r_ref = (float*)malloc(r_ref_mem_size);
 
     //generate random matrices
-    gen_mat_fp32(m, k, a_32);
-    gen_mat_fp32(k, n, b_32);
+    GenMatFP32(m, k, a_32);
+    GenMatFP32(k, n, b_32);
     mat_32_16(m, k, a_32, a);
     mat_32_16(k, n, b_32, b);
 
     //get benchmark
-    MMult_ref(m, n, k, a_32, lda, b_32, ldb, r_ref, ldr); 
+    MatMulRef(m, n, k, a_32, lda, b_32, ldb, r_ref, ldr); 
 
     //allocate memory in device
     __half *d_A, *d_B, *d_R;
@@ -68,13 +68,13 @@ int main(){
     for(int i=0; i<(N_REP+N_WARMUP); i++){
         //warm up
         if (i<N_WARMUP){
-            MMult_fp16(m, n, k, d_A, lda, d_B, ldb, d_R, ldr);
+            MatMulFP16(m, n, k, d_A, lda, d_B, ldb, d_R, ldr);
             continue;
         }
         //running and timing  N_REP times
         cudaEventRecord(start, NULL);
 
-        MMult_fp16(m, n, k, d_A, lda, d_B, ldb, d_R, ldr);
+        MatMulFP16(m, n, k, d_A, lda, d_B, ldb, d_R, ldr);
 
         cudaEventRecord(stop, NULL); 
         cudaEventSynchronize(stop);
@@ -86,7 +86,7 @@ int main(){
 
     //compare result and benchmark
     mat_16_32(m, n, r, r_32);
-    err = comp_mat(m, n, r_ref, r_32);
+    err = CompareMat(m, n, r_ref, r_32);
 
     //calculate tflops and average error
     float msecPerMatrixMul = sum_run_time / N_REP;

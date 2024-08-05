@@ -20,12 +20,12 @@
         exit(EXIT_FAILURE); \
     }
 
-void MMult_ref(int, int, int, float *, int , float *, int, float *, int);
-void MMult_fp16(int, int, int, __half *, int, __half *, int, __half *, int);
-void gen_mat_fp32(int, int, float*);
+void MatMulRef(int, int, int, float *, int , float *, int, float *, int);
+void MatMulFP16(int, int, int, __half *, int, __half *, int, __half *, int);
+void GenMatFP32(int, int, float*);
 void mat_32_16(int, int, float *, __half *);
 void mat_16_32(int, int, __half *, float *);
-float comp_mat(int, int, float *, float *);
+float CompareMat(int, int, float *, float *);
 
 
 int main(){
@@ -59,13 +59,13 @@ int main(){
 
 
     //generate random matrices
-    gen_mat_fp32(m, k, a_32);
-    gen_mat_fp32(k, n, b_32);
+    GenMatFP32(m, k, a_32);
+    GenMatFP32(k, n, b_32);
     mat_32_16(m, k, a_32, a);
     mat_32_16(k, n, b_32, b);
 
     //get benchmark
-    MMult_ref(m, n, k, a_32, lda, b_32, ldb, r_ref, ldr); 
+    MatMulRef(m, n, k, a_32, lda, b_32, ldb, r_ref, ldr); 
 
 
     //create handle
@@ -88,8 +88,8 @@ int main(){
 
     CUBLAS_CHECK(cublasSetMathMode(handle, CUBLAS_TENSOR_OP_MATH));
     //generate random matrices
-    gen_mat_fp32(m, k, a_32);
-    gen_mat_fp32(k, n, b_32);
+    GenMatFP32(m, k, a_32);
+    GenMatFP32(k, n, b_32);
     mat_32_16(m, k, a_32, a);
     mat_32_16(k, n, b_32, b);
 
@@ -131,7 +131,7 @@ int main(){
     cudaMemcpy(r, d_R, r_mem_size, cudaMemcpyDeviceToHost);
     //compare result and benchmark
     mat_16_32(m, n, r, r_32);
-    err = comp_mat(m, n, r_ref, r_32);
+    err = CompareMat(m, n, r_ref, r_32);
      //calculate tflops
     float msecPerMatrixMul = sum_run_time / N_REP;
     double flopsPerMatrixMul = 2.0 * m * k * n;
