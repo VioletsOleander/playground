@@ -12,7 +12,7 @@ using namespace nvcuda;
 
 
 
-void MMult_fp16(int m, int n, int k, half *d_A, int lda, half *d_B, int ldb, half *d_R, int ldr){
+void MatMulFP16(int m, int n, int k, half *d_A, int lda, half *d_B, int ldb, half *d_R, int ldr){
     /*
 	Add your code here
 	*/

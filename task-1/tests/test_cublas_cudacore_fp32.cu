@@ -6,7 +6,7 @@
 #include <cuda_runtime.h>
 #include <cublas_v2.h>
 
-void gen_mat_fp32(int, int, float*);
+void GenMatFP32(int, int, float*);
 
 int main(){
     int m=M, n=N, k=K;
@@ -25,8 +25,8 @@ int main(){
     b = (float*)malloc(b_mem_size);
     r = (float*)malloc(r_mem_size);
     //generate random matrices
-    gen_mat_fp32(m, k, a);
-    gen_mat_fp32(k, n, b);
+    GenMatFP32(m, k, a);
+    GenMatFP32(k, n, b);
 
     //create handle
     cublasHandle_t handle;
