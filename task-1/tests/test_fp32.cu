@@ -6,7 +6,7 @@
 #include <cuda_runtime.h>
 
 void MMult_ref(int, int, int, float *, int , float *, int, float *, int);
-void MMult_fp32(int, int, int, float *, int, float *, int, float *, int);
+__global__ void MMult_fp32(int, int, int, float *, int, float *, int, float *, int);
 void gen_mat_fp32(int, int, float*);
 float comp_mat(int, int, float *, float *);
 
@@ -50,13 +50,13 @@ int main(){
     for(int i=0; i<(N_REP+N_WARMUP); i++){
         //warm up
         if (i<N_WARMUP){
-            MMult_fp32(m, n, k, d_A, lda, d_B, ldb, d_R, ldr);
+            MMult_fp32<<<1024, 64>>>(m, n, k, d_A, lda, d_B, ldb, d_R, ldr);
             continue;
         }
         //running and timing  N_REP times
         cudaEventRecord(start, NULL);
 
-        MMult_fp32(m, n, k, d_A, lda, d_B, ldb, d_R, ldr);
+        MMult_fp32<<<1024, 64>>>(m, n, k, d_A, lda, d_B, ldb, d_R, ldr);
 
         cudaEventRecord(stop, NULL); 
         cudaEventSynchronize(stop);

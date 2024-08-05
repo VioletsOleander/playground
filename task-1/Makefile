@@ -1,77 +1,51 @@
-# for testing different versions of matrix multiplication
- TESTFILE := test_fp32
-#   TESTFILE := test_fp16
+DEBUG_FLAG := -g -lineinfo # compile in debug mode
 
-# for testing cuBLAS
-# TESTFILE := test_cuBLAS
-# TESTFILE := test_cuBLAS_cudacore_fp32
-# TESTFILE := test_cuBLAS_tensorcore_fp16
+SMS ?= 80 86 # compile for target architecture
+GENCODE_FLAGS := $(foreach sm, $(SMS), -gencode arch=compute_$(sm),code=sm_$(sm))
 
-# cuda core matmul version
+CC := nvcc # .h .cpp .cu -> object file
+LINKER := $(CC) # .o -> executable file
+
+CPPFLAGS := -std=c++17 -O2 -I include # used in compilation
+LDFLAGS := -lm -lcublas -lopenblas # used in link
+
+# for testing different versions of matrix multiplication: TEST := tests/test_fp32 or test_fp16
+# for testing cuBLAS: TEST := tests/test_cuBLAS or test_cuBLAS_cudacore_fp32 or test_cuBLAS_tensorcore_fp16
+TEST := test_fp32
+
+# cuda core matmul version: MATMUL  src/MMult_v0 or MMult_v1 or ...
+# tensor core matmul version: MATMUL := src/MMult_t_v0 or MMult_t_v1 or ...
 MATMUL := MMult_v0
-# MATMUL := MMult_v1
 
-# tensor core matmul version
-# MATMUL := MMult_t_v0
-# MATMUL := MMult_t_v1
+TARGET := results/result_$(MATMUL)_$(TEST).txt
 
-# If set to compile in debug mode
-DEBUG_FLAG := off
+UTIL_OBJS := comp_mat.o gen_mat.o MMult_ref.o tran_mat.o
 
-SMS ?= 80 86
-CC := nvcc
-LINKER := $(CC) #.o -> executable file
+TEST_OBJS := $(TEST).o $(MATMUL).o
 
-OUTPUT_DIR := output_files
-TARGET := ./$(OUTPUT_DIR)/output_$(MATMUL)_$(TESTFILE).txt
+OBJS := $(UTIL_OBJS) $(TEST_OBJS)
 
-$(foreach sm, $(SMS), $(eval GENCODE_FLAGS += -gencode arch=compute_$(sm),code=sm_$(sm)))
+all:
+	make $(TEST).exe
+	
+$(TEST).exe: $(OBJS) 
+	$(LINKER) $^ $(LDFLAGS) -o bin/$@
 
-CFLAGS := -std=c++17 -O2 #used in compilation
-LDFLAGS := -lm -lcublas -lopenblas #used in link
+%.o: %.cpp parameters.h
+	$(CC) $(CPPFLAGS) $(GENCODE_FLAGS) $(DEBUG_FLAG) -c $< -o $(@F)
 
-UTIL := comp_mat.o\
-		gen_mat.o \
-		MMult_ref.o \
-		tran_mat.o
+%.o: %.cu parameters.h
+	$(CC) $(CPPFLAGS) $(GENCODE_FLAGS) $(DEBUG_FLAG) -c $< -o $(@F)
 
-TEST_OBJS := $(TESTFILE).o $(MATMUL).o
-
-#generate .o files
-ifeq ($(DEBUG_FLAG), on)
-%.o: %.cpp
-	$(CC) $(CFLAGS)$(GENCODE_FLAGS) -lineinfo -c $< -o $@
-
-%.o: %.cu
-	$(CC) $(CFLAGS)$(GENCODE_FLAGS) -lineinfo -c $< -o $@
-else
-%.o: %.cpp
-	$(CC) $(CFLAGS)$(GENCODE_FLAGS) -c $< -o $@
-
-%.o: %.cu
-	$(CC) $(CFLAGS)$(GENCODE_FLAGS) -c $< -o $@
-endif
-
-all: $(TARGET)
-	make clean
-	make test.exe
-
-#generate executable files
-test.exe: $(TEST_OBJS) $(UTIL) parameters.h
-	$(LINKER) $(TEST_OBJS) $(UTIL) $(LDFLAGS) -o $@
-
-#create directory if not exist
-$(TARGET): | $(OUTPUT_DIR)
-
-$(OUTPUT_DIR):
-	mkdir -p $@
-
-#run
 run:
 	make all
-	echo "version = '$(MATMUL) + $(TESTFILE)';" > $(TARGET)
-	./test.exe >> $(TARGET)
+	echo "version = '$(MATMUL) + $(TEST)';" > $(TARGET)
+	./bin/$(TEST).exe >> $(TARGET)
 
 clean:
-	rm -f *.o *~ core *.exe
+	mv *.o build/
 
+vpath %.cu src tests
+vpath %.cpp src tests 
+vpath %.h include
+vpath %.o build

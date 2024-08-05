@@ -8,8 +8,7 @@
 
 
 
-void MMult_fp32(int m, int n, int k, float *d_A, int lda, float *d_B, int ldb, float *d_R, int ldr){
-    /*
-	Add your code here
-	*/
+__global__ void MMult_fp32(int m, int n, int k, float *d_A, int lda, float *d_B, int ldb, float *d_R, int ldr){
+	
+
 }

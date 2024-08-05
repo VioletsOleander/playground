@@ -1,0 +1,191 @@
+Device 0: NVIDIA A100-SXM4-80GB 
+ Device Level Properties:
+  Compute Capability Major/Minor version number: 8.0
+  Total amount of global memory on device: 79.15 GB
+  Total amount of constant memory on device : 65536 bytes
+  Number of available multiprocessors on device: 108
+ Grid Level Properties:
+  Max dimension size of a grid size (x,y,z): (2147483647, 65535, 65535)
+ Stream Multiprocessor Level Properties:
+  Total amount of shared memory per multiprocessor: 167936 bytes
+  Number of registers available per multiprocessor: 65536
+  Maximum number of blocks per multiprocessor: 32
+  Maximum number of threads per multiprocessor: 2048
+ Block Level Properties:
+  Total amount of shared memory per block: 49152 bytes
+  Total amount of reserved shared memory per block: 1024 bytes
+  Number of registers available per block: 65536
+  Maximum number of threads per block: 1024
+  Max dimension size of a thread block (x,y,z): (1024, 1024, 64)
+ Other Properties:
+  Warp size: 32
+  Memory Clock Rate (KHz): 1593000
+  Memory Bus Width (bits): 5120
+
+Device 1: NVIDIA A100-SXM4-80GB 
+ Device Level Properties:
+  Compute Capability Major/Minor version number: 8.0
+  Total amount of global memory on device: 79.15 GB
+  Total amount of constant memory on device : 65536 bytes
+  Number of available multiprocessors on device: 108
+ Grid Level Properties:
+  Max dimension size of a grid size (x,y,z): (2147483647, 65535, 65535)
+ Stream Multiprocessor Level Properties:
+  Total amount of shared memory per multiprocessor: 167936 bytes
+  Number of registers available per multiprocessor: 65536
+  Maximum number of blocks per multiprocessor: 32
+  Maximum number of threads per multiprocessor: 2048
+ Block Level Properties:
+  Total amount of shared memory per block: 49152 bytes
+  Total amount of reserved shared memory per block: 1024 bytes
+  Number of registers available per block: 65536
+  Maximum number of threads per block: 1024
+  Max dimension size of a thread block (x,y,z): (1024, 1024, 64)
+ Other Properties:
+  Warp size: 32
+  Memory Clock Rate (KHz): 1593000
+  Memory Bus Width (bits): 5120
+
+Device 2: NVIDIA A100-SXM4-80GB 
+ Device Level Properties:
+  Compute Capability Major/Minor version number: 8.0
+  Total amount of global memory on device: 79.15 GB
+  Total amount of constant memory on device : 65536 bytes
+  Number of available multiprocessors on device: 108
+ Grid Level Properties:
+  Max dimension size of a grid size (x,y,z): (2147483647, 65535, 65535)
+ Stream Multiprocessor Level Properties:
+  Total amount of shared memory per multiprocessor: 167936 bytes
+  Number of registers available per multiprocessor: 65536
+  Maximum number of blocks per multiprocessor: 32
+  Maximum number of threads per multiprocessor: 2048
+ Block Level Properties:
+  Total amount of shared memory per block: 49152 bytes
+  Total amount of reserved shared memory per block: 1024 bytes
+  Number of registers available per block: 65536
+  Maximum number of threads per block: 1024
+  Max dimension size of a thread block (x,y,z): (1024, 1024, 64)
+ Other Properties:
+  Warp size: 32
+  Memory Clock Rate (KHz): 1593000
+  Memory Bus Width (bits): 5120
+
+Device 3: NVIDIA A100-SXM4-80GB 
+ Device Level Properties:
+  Compute Capability Major/Minor version number: 8.0
+  Total amount of global memory on device: 79.15 GB
+  Total amount of constant memory on device : 65536 bytes
+  Number of available multiprocessors on device: 108
+ Grid Level Properties:
+  Max dimension size of a grid size (x,y,z): (2147483647, 65535, 65535)
+ Stream Multiprocessor Level Properties:
+  Total amount of shared memory per multiprocessor: 167936 bytes
+  Number of registers available per multiprocessor: 65536
+  Maximum number of blocks per multiprocessor: 32
+  Maximum number of threads per multiprocessor: 2048
+ Block Level Properties:
+  Total amount of shared memory per block: 49152 bytes
+  Total amount of reserved shared memory per block: 1024 bytes
+  Number of registers available per block: 65536
+  Maximum number of threads per block: 1024
+  Max dimension size of a thread block (x,y,z): (1024, 1024, 64)
+ Other Properties:
+  Warp size: 32
+  Memory Clock Rate (KHz): 1593000
+  Memory Bus Width (bits): 5120
+
+Device 4: NVIDIA A100-SXM4-80GB 
+ Device Level Properties:
+  Compute Capability Major/Minor version number: 8.0
+  Total amount of global memory on device: 79.15 GB
+  Total amount of constant memory on device : 65536 bytes
+  Number of available multiprocessors on device: 108
+ Grid Level Properties:
+  Max dimension size of a grid size (x,y,z): (2147483647, 65535, 65535)
+ Stream Multiprocessor Level Properties:
+  Total amount of shared memory per multiprocessor: 167936 bytes
+  Number of registers available per multiprocessor: 65536
+  Maximum number of blocks per multiprocessor: 32
+  Maximum number of threads per multiprocessor: 2048
+ Block Level Properties:
+  Total amount of shared memory per block: 49152 bytes
+  Total amount of reserved shared memory per block: 1024 bytes
+  Number of registers available per block: 65536
+  Maximum number of threads per block: 1024
+  Max dimension size of a thread block (x,y,z): (1024, 1024, 64)
+ Other Properties:
+  Warp size: 32
+  Memory Clock Rate (KHz): 1593000
+  Memory Bus Width (bits): 5120
+
+Device 5: NVIDIA A100-SXM4-80GB 
+ Device Level Properties:
+  Compute Capability Major/Minor version number: 8.0
+  Total amount of global memory on device: 79.15 GB
+  Total amount of constant memory on device : 65536 bytes
+  Number of available multiprocessors on device: 108
+ Grid Level Properties:
+  Max dimension size of a grid size (x,y,z): (2147483647, 65535, 65535)
+ Stream Multiprocessor Level Properties:
+  Total amount of shared memory per multiprocessor: 167936 bytes
+  Number of registers available per multiprocessor: 65536
+  Maximum number of blocks per multiprocessor: 32
+  Maximum number of threads per multiprocessor: 2048
+ Block Level Properties:
+  Total amount of shared memory per block: 49152 bytes
+  Total amount of reserved shared memory per block: 1024 bytes
+  Number of registers available per block: 65536
+  Maximum number of threads per block: 1024
+  Max dimension size of a thread block (x,y,z): (1024, 1024, 64)
+ Other Properties:
+  Warp size: 32
+  Memory Clock Rate (KHz): 1593000
+  Memory Bus Width (bits): 5120
+
+Device 6: NVIDIA A100-SXM4-80GB 
+ Device Level Properties:
+  Compute Capability Major/Minor version number: 8.0
+  Total amount of global memory on device: 79.15 GB
+  Total amount of constant memory on device : 65536 bytes
+  Number of available multiprocessors on device: 108
+ Grid Level Properties:
+  Max dimension size of a grid size (x,y,z): (2147483647, 65535, 65535)
+ Stream Multiprocessor Level Properties:
+  Total amount of shared memory per multiprocessor: 167936 bytes
+  Number of registers available per multiprocessor: 65536
+  Maximum number of blocks per multiprocessor: 32
+  Maximum number of threads per multiprocessor: 2048
+ Block Level Properties:
+  Total amount of shared memory per block: 49152 bytes
+  Total amount of reserved shared memory per block: 1024 bytes
+  Number of registers available per block: 65536
+  Maximum number of threads per block: 1024
+  Max dimension size of a thread block (x,y,z): (1024, 1024, 64)
+ Other Properties:
+  Warp size: 32
+  Memory Clock Rate (KHz): 1593000
+  Memory Bus Width (bits): 5120
+
+Device 7: NVIDIA A100-SXM4-80GB 
+ Device Level Properties:
+  Compute Capability Major/Minor version number: 8.0
+  Total amount of global memory on device: 79.15 GB
+  Total amount of constant memory on device : 65536 bytes
+  Number of available multiprocessors on device: 108
+ Grid Level Properties:
+  Max dimension size of a grid size (x,y,z): (2147483647, 65535, 65535)
+ Stream Multiprocessor Level Properties:
+  Total amount of shared memory per multiprocessor: 167936 bytes
+  Number of registers available per multiprocessor: 65536
+  Maximum number of blocks per multiprocessor: 32
+  Maximum number of threads per multiprocessor: 2048
+ Block Level Properties:
+  Total amount of shared memory per block: 49152 bytes
+  Total amount of reserved shared memory per block: 1024 bytes
+  Number of registers available per block: 65536
+  Maximum number of threads per block: 1024
+  Max dimension size of a thread block (x,y,z): (1024, 1024, 64)
+ Other Properties:
+  Warp size: 32
+  Memory Clock Rate (KHz): 1593000
+  Memory Bus Width (bits): 5120

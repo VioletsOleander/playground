@@ -1,2 +1,3 @@
-# plagground
+# playground
+
 playground tasks for newcomers

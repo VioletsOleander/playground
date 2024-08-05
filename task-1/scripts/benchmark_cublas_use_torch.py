@@ -3,7 +3,7 @@ import time
 
 TOPS = 1e12
 # 确保在GPU上运行
-device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+device = torch.device('cuda:1' if torch.cuda.is_available() else 'cpu')
 
 def torch_gemm_benchmark(M, K, N, use_tensor_core=True):
     
