@@ -5,86 +5,103 @@
 
 #include <cuda_runtime.h>
 
-void MatMulRef(int, int, int, float *, int , float *, int, float *, int);
-__global__ void MatMulFP32(int, int, int, float *, int, float *, int, float *, int);
-void GenMatFP32(int, int, float*);
+void MatMulRef(const int, const int, const int, float *, int, float *, int, float *, int);
+__global__ void MatMulFP32(const int, const int, const int, const float *, const int, const float *, const int, float *, const int);
+void GenMatFP32(int, int, float *);
 float CompareMat(int, int, float *, float *);
 
-int main(){
-    int m=M, n=N, k=K;
-    int lda = k, ldb = n, ldr = n;
-    float run_time = 0.0, sum_run_time = 0.0;
-    float err = 0.0;
-    float *a, *b, *r, *r_ref; 
+int main() {
+    const int m = M, n = N, k = K;
+    const int lda = K, ldb = N, ldc = N, ldr = N;
+
+    // allocate memory for matrices
+    const size_t memSize_a = m * lda * sizeof(float);
+    const size_t memSize_b = k * ldb * sizeof(float);
+    const size_t memSize_c = m * ldc * sizeof(float);
+    const size_t memSize_r = m * ldc * sizeof(float);
+    float *h_a = (float *)malloc(memSize_a);
+    float *h_b = (float *)malloc(memSize_b);
+    float *h_c = (float *)malloc(memSize_c);
+    float *h_r = (float *)malloc(memSize_r);
+
+    // generate random matrices
+    GenMatFP32(m, k, h_a);
+    GenMatFP32(k, n, h_b);
+
+    // get reference result
+    MatMulRef(m, n, k, h_a, lda, h_b, ldb, h_r, ldr);
+
+    // allocate memory in device
+    float *d_a, *d_b, *d_r;
+
+    cudaMalloc((void **)&d_a, memSize_a);
+    cudaMalloc((void **)&d_b, memSize_b);
+    cudaMalloc((void **)&d_r, memSize_r);
+
+    cudaMemcpy(d_a, h_a, memSize_a, cudaMemcpyHostToDevice);
+    cudaMemcpy(d_b, h_b, memSize_b, cudaMemcpyHostToDevice);
 
     cudaEvent_t start, stop;
     cudaEventCreate(&start);
     cudaEventCreate(&stop);
 
-    //allocate memory for matrices
-    const size_t a_mem_size = m * k * sizeof(float);
-    const size_t b_mem_size = k * n * sizeof(float);
-    const size_t r_mem_size = m * n * sizeof(float);
-    const size_t r_ref_mem_size = m * n * sizeof(float);
-    a = (float*)malloc(a_mem_size);
-    b = (float*)malloc(b_mem_size);
-    r = (float*)malloc(r_mem_size);
-    r_ref = (float*)malloc(r_ref_mem_size);
-    //generate random matrices
-    GenMatFP32(m, k, a);
-    GenMatFP32(k, n, b);
+    float runTime = 0.0, runTimeSum = 0.0;
 
-    //get benchmark
-    MatMulRef(m, n, k, a, lda, b, ldb, r_ref, ldr); 
+    // configure kernel launch
+    int ratioMN = m / n;
+    int numWarp_blk = 8;
+    int numThread_blk = numWarp_blk * N_THR_PER_WARP;
+    int numThreadXDim_blk = sqrt((double)numThread_blk);
+    int numThreadYDim_blk = numThread_blk / numThreadXDim_blk; // exact division assumed
+    dim3 dimBlock(numThreadXDim_blk, numThreadYDim_blk);
 
-    //allocate memory in device
-    float *d_A, *d_B, *d_R;
-    cudaMalloc((void**)&d_A, a_mem_size);
-    cudaMalloc((void**)&d_B, b_mem_size);
-    cudaMalloc((void**)&d_R, r_mem_size);
-    
-    cudaMemcpy(d_A, a, a_mem_size, cudaMemcpyHostToDevice);
-    cudaMemcpy(d_B, b, b_mem_size, cudaMemcpyHostToDevice);
+    int numThreadXDim_grid = m; // each thread responsible for one output
+    int numThreadYDim_grid = n;
+    int numBlockXDim_grid = (numThreadXDim_grid + numThreadXDim_blk - 1) / numThreadXDim_blk;
+    int numBlockYDim_grid = (numThreadYDim_grid + numThreadYDim_blk - 1) / numThreadYDim_blk;
+    dim3 dimGrid(numBlockXDim_grid, numBlockYDim_grid);
 
-    //run for (N_REP+N_WARMUP) times
-    for(int i=0; i<(N_REP+N_WARMUP); i++){
-        //warm up
-        if (i<N_WARMUP){
-            MatMulFP32<<<1024, 64>>>(m, n, k, d_A, lda, d_B, ldb, d_R, ldr);
+    // run (N_REP+N_WARMUP) times
+    for (int i = 0; i < (N_REP + N_WARMUP); i++) {
+        // warm up
+        if (i < N_WARMUP) {
+            MatMulFP32<<<dimGrid, dimBlock>>>(m, n, k, d_a, lda, d_b, ldb, d_r, ldr);
             continue;
         }
-        //running and timing  N_REP times
+        // run and timing N_REP times
         cudaEventRecord(start, NULL);
 
-        MatMulFP32<<<1024, 64>>>(m, n, k, d_A, lda, d_B, ldb, d_R, ldr);
+        MatMulFP32<<<dimGrid, dimBlock>>>(m, n, k, d_a, lda, d_b, ldb, d_r, ldr);
 
-        cudaEventRecord(stop, NULL); 
+        cudaEventRecord(stop, NULL);
         cudaEventSynchronize(stop);
-        cudaEventElapsedTime(&run_time, start, stop);
-        sum_run_time += run_time;
+        cudaEventElapsedTime(&runTime, start, stop);
+        runTimeSum += runTime;
     }
 
-    //compare result and benchmark
-    cudaMemcpy(r, d_R, r_mem_size, cudaMemcpyDeviceToHost);
-    err = CompareMat(m, n, r_ref, r);
+    cudaMemcpy(h_c, d_r, memSize_r, cudaMemcpyDeviceToHost);
 
-     //calculate tflops and average error
-    float msecPerMatrixMul = sum_run_time / N_REP;
-    double flopsPerMatrixMul = 2.0 * m * k * n;
-    double tflops = (flopsPerMatrixMul * 1.0e-12f) / (msecPerMatrixMul / 1000.0f);
+    // compare result against reference
+    float error = 0.0;
+    error = CompareMat(m, n, h_r, h_c);
 
-    printf("TFLOPS is: %lf\naverage error is: %f\n", tflops, err);
+    // calculate tflops and average error
+    float msecPerMatMul = runTimeSum / N_REP;
+    double flopsPerMatMul = 2.0 * m * k * n;
+    double tflops = (flopsPerMatMul * 1.0e-12f) / (msecPerMatMul / 1000.0f);
 
-    //free memories in device
-    cudaFree(d_A);
-    cudaFree(d_B);
-    cudaFree(d_R);
-        
-    //free memories in host
-    free(a);
-    free(b);
-    free(r);
-    free(r_ref);
+    printf("TFLOPS is: %lf\naverage error is: %f\n", tflops, error);
+
+    // free device memories
+    cudaFree(d_a);
+    cudaFree(d_b);
+    cudaFree(d_r);
+
+    // free host memories
+    free(h_a);
+    free(h_b);
+    free(h_c);
+    free(h_r);
 
     return 0;
 }
