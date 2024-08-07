@@ -1,9 +1,8 @@
+#include "parameters.h"
+#include <cassert>
+#include <cuda_runtime.h>
 #include <stdio.h>
 #include <stdlib.h>
-
-#include "parameters.h"
-
-#include <cuda_runtime.h>
 
 void MatMulRef(const int, const int, const int, float *, int, float *, int, float *, int);
 __global__ void MatMulFP32(const int, const int, const int, const float *, const int, const float *, const int, float *, const int);
@@ -13,6 +12,8 @@ float CompareMat(int, int, float *, float *);
 int main() {
     const int m = M, n = N, k = K;
     const int lda = K, ldb = N, ldc = N, ldr = N;
+    // printf("Matrix A: (%d * %d), Matrix B: (%d * %d), Matrix C: (%d * %d)\n",
+    //    m, k, k, n, m, n);
 
     // allocate memory for matrices
     const size_t memSize_a = m * lda * sizeof(float);
@@ -48,30 +49,41 @@ int main() {
     float runTime = 0.0, runTimeSum = 0.0;
 
     // configure kernel launch
-    int ratioMN = m / n;
-    int numWarp_blk = 8;
-    int numThread_blk = numWarp_blk * N_THR_PER_WARP;
-    int numThreadXDim_blk = sqrt((double)numThread_blk);
-    int numThreadYDim_blk = numThread_blk / numThreadXDim_blk; // exact division assumed
+    const int numWarp_blk = 8;
+    const int numThread_blk = numWarp_blk * N_THR_PER_WARP;
+    const int numThreadXDim_blk = sqrt((double)numThread_blk);
+    const int numThreadYDim_blk = numThread_blk / numThreadXDim_blk; // exact division assumed
     dim3 dimBlock(numThreadXDim_blk, numThreadYDim_blk);
 
-    int numThreadXDim_grid = m; // each thread responsible for one output
-    int numThreadYDim_grid = n;
-    int numBlockXDim_grid = (numThreadXDim_grid + numThreadXDim_blk - 1) / numThreadXDim_blk;
-    int numBlockYDim_grid = (numThreadYDim_grid + numThreadYDim_blk - 1) / numThreadYDim_blk;
+    const int numThreadXDim_grid = m; // each thread responsible for one output
+    const int numThreadYDim_grid = n;
+    const int numBlockXDim_grid = (numThreadXDim_grid + numThreadXDim_blk - 1) / numThreadXDim_blk;
+    const int numBlockYDim_grid = (numThreadYDim_grid + numThreadYDim_blk - 1) / numThreadYDim_blk;
     dim3 dimGrid(numBlockXDim_grid, numBlockYDim_grid);
+    // printf("Grid dim: (%d, %d), Block dim: (%d, %d)\n", dimGrid.x, dimGrid.y, dimBlock.x, dimBlock.y);
+
+    const int tileDim_m = numThreadYDim_blk;
+    const int tileDim_n = numThreadXDim_blk;
+    assert(tileDim_m == tileDim_n); // square tile block assumed
+    const int tileDim_k = WIDTH_BLOCK_TILE;
+    // printf("Blocktile A dim: (%d, %d), BlockTile B dim: (%d, %d), Blocktile C dim: (%d, %d)\n",
+    //    tileDim_m, tileDim_k, tileDim_k, tileDim_n, tileDim_m, tileDim_n);
+    // shared memory usage by each block tile
+    size_t sMemPerBlk = (tileDim_m * tileDim_k + tileDim_n * tileDim_k) * sizeof(float);
+    // printf("Shared memory usage: %d bytes per block\n", sMemPerBlk);
+    assert(sMemPerBlk < SM_PER_BLOCK);
 
     // run (N_REP+N_WARMUP) times
     for (int i = 0; i < (N_REP + N_WARMUP); i++) {
         // warm up
         if (i < N_WARMUP) {
-            MatMulFP32<<<dimGrid, dimBlock>>>(m, n, k, d_a, lda, d_b, ldb, d_r, ldr);
+            MatMulFP32<<<dimGrid, dimBlock, sMemPerBlk>>>(m, n, k, d_a, lda, d_b, ldb, d_r, ldr);
             continue;
         }
         // run and timing N_REP times
         cudaEventRecord(start, NULL);
 
-        MatMulFP32<<<dimGrid, dimBlock>>>(m, n, k, d_a, lda, d_b, ldb, d_r, ldr);
+        MatMulFP32<<<dimGrid, dimBlock, sMemPerBlk>>>(m, n, k, d_a, lda, d_b, ldb, d_r, ldr);
 
         cudaEventRecord(stop, NULL);
         cudaEventSynchronize(stop);

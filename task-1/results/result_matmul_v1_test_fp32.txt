@@ -1,0 +1,3 @@
+version = 'matmul_v1 + test_fp32';
+TFLOPS is: 4.517081
+average error is: 0.000001

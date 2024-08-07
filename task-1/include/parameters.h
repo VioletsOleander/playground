@@ -28,4 +28,5 @@
 #define MAX_THR_PER_BLOCK_Y 1024 // max number of threads in block y dim
 #define MAX_THR_PER_BLOCK_Z 24   // max number of threads in block z dim
 
-#define N_THR_PER_WARP 32 // number of threads per warp
+#define N_THR_PER_WARP 32   // number of threads per warp
+#define WIDTH_BLOCK_TILE 16 // width of block tile

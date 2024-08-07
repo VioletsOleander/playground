@@ -30,7 +30,7 @@ __global__ void MatMulFP32(const int m, const int n, const int k,
             float val_a = gm_a[globalIdx_y * lda + i]; // (globalIdx_y, i) in matrix a
             float val_b = gm_b[i * ldb + globalIdx_x]; // (i, globalIdx_x) in matrix b
             val += val_a * val_b;
-        }
+        } // the loop takes (2 * k) global memory read in total
         // write global memory once
         gm_c[globalIdx_y * ldc + globalIdx_x] = val;
     }

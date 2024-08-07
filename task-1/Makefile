@@ -1,4 +1,6 @@
-DEBUG_FLAG := -g -lineinfo # compile in debug mode
+# compile in debug mode
+# to debug with cuda-gdb use -G instead of -lineinfo and also delete optimization flag -O
+DEBUG_FLAG := -g -lineinfo 
 
 SMS ?= 80 86 # compile for target architecture
 GENCODE_FLAGS := $(foreach sm, $(SMS), -gencode arch=compute_$(sm),code=sm_$(sm))
@@ -6,7 +8,7 @@ GENCODE_FLAGS := $(foreach sm, $(SMS), -gencode arch=compute_$(sm),code=sm_$(sm)
 CC := nvcc # .h .cpp .cu -> object file
 LINKER := $(CC) # .o -> executable file
 
-CPPFLAGS := -std=c++17 -O2 -I include # used in compilation
+CPPFLAGS := -std=c++17 -O2 -I include # used in compilation -O2
 LDFLAGS := -lm -lcublas -lopenblas # used in link
 
 # for testing different versions of matrix multiplication: TEST := tests/test_fp32 or test_fp16
@@ -15,7 +17,7 @@ TEST := test_fp32
 
 # cuda core matmul version: MATMUL  src/MMult_v0 or MMult_v1 or ...
 # tensor core matmul version: MATMUL := src/MMult_t_v0 or MMult_t_v1 or ...
-MATMUL := matmul_v0
+MATMUL := matmul_v1
 
 TARGET := results/result_$(MATMUL)_$(TEST).txt
 
@@ -46,6 +48,9 @@ run:
 
 clean:
 	mv *.o build/
+
+rm:
+	rm build/*.o
 
 vpath %.cu src tests
 vpath %.cpp src tests 
