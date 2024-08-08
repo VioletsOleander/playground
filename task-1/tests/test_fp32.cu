@@ -5,7 +5,7 @@
 #include <stdlib.h>
 
 void MatMulRef(const int, const int, const int, float *, int, float *, int, float *, int);
-__global__ void MatMulFP32(const int, const int, const int, const float *, const int, const float *, const int, float *, const int);
+__global__ void MatMulFP32(const int, const int, const int, const float *, const float *, float *, int offset_x, int offset_y);
 void GenMatFP32(int, int, float *);
 float CompareMat(int, int, float *, float *);
 
@@ -55,10 +55,16 @@ int main() {
     const int numThreadYDim_blk = numThread_blk / numThreadXDim_blk; // exact division assumed
     dim3 dimBlock(numThreadXDim_blk, numThreadYDim_blk);
 
-    const int numThreadXDim_grid = m; // each thread responsible for one output
+    const int numThreadXDim_grid = m;
     const int numThreadYDim_grid = n;
-    const int numBlockXDim_grid = (numThreadXDim_grid + numThreadXDim_blk - 1) / numThreadXDim_blk;
-    const int numBlockYDim_grid = (numThreadYDim_grid + numThreadYDim_blk - 1) / numThreadYDim_blk;
+
+    // thread corsening start from v2
+    const int divider = DIVIDER;
+    const int offset_x = n / divider;
+    const int offset_y = m / divider;
+
+    const int numBlockXDim_grid = (numThreadXDim_grid / divider + numThreadXDim_blk - 1) / numThreadXDim_blk;
+    const int numBlockYDim_grid = (numThreadYDim_grid / divider + numThreadYDim_blk - 1) / numThreadYDim_blk;
     dim3 dimGrid(numBlockXDim_grid, numBlockYDim_grid);
     // printf("Grid dim: (%d, %d), Block dim: (%d, %d)\n", dimGrid.x, dimGrid.y, dimBlock.x, dimBlock.y);
 
@@ -68,8 +74,9 @@ int main() {
     const int tileDim_k = WIDTH_BLOCK_TILE;
     // printf("Blocktile A dim: (%d, %d), BlockTile B dim: (%d, %d), Blocktile C dim: (%d, %d)\n",
     //    tileDim_m, tileDim_k, tileDim_k, tileDim_n, tileDim_m, tileDim_n);
+
     // shared memory usage by each block tile
-    size_t sMemPerBlk = (tileDim_m * tileDim_k + tileDim_n * tileDim_k) * sizeof(float);
+    size_t sMemPerBlk = (tileDim_m * tileDim_k + tileDim_n * tileDim_k) * DIVIDER * sizeof(float);
     // printf("Shared memory usage: %d bytes per block\n", sMemPerBlk);
     assert(sMemPerBlk < SM_PER_BLOCK);
 
@@ -77,13 +84,13 @@ int main() {
     for (int i = 0; i < (N_REP + N_WARMUP); i++) {
         // warm up
         if (i < N_WARMUP) {
-            MatMulFP32<<<dimGrid, dimBlock, sMemPerBlk>>>(m, n, k, d_a, lda, d_b, ldb, d_r, ldr);
+            MatMulFP32<<<dimGrid, dimBlock, sMemPerBlk>>>(m, n, k, d_a, d_b, d_r, offset_x, offset_y);
             continue;
         }
         // run and timing N_REP times
         cudaEventRecord(start, NULL);
 
-        MatMulFP32<<<dimGrid, dimBlock, sMemPerBlk>>>(m, n, k, d_a, lda, d_b, ldb, d_r, ldr);
+        MatMulFP32<<<dimGrid, dimBlock, sMemPerBlk>>>(m, n, k, d_a, d_b, d_r, offset_x, offset_y);
 
         cudaEventRecord(stop, NULL);
         cudaEventSynchronize(stop);

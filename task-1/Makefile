@@ -1,6 +1,6 @@
 # compile in debug mode
-# to debug with cuda-gdb use -G instead of -lineinfo and also delete optimization flag -O
-DEBUG_FLAG := -g -lineinfo 
+# to debug with cuda-gd use -G instead of -lineinfo and also delete optimization flag -O
+DEBUG_FLAG := -g -lineinfo
 
 SMS ?= 80 86 # compile for target architecture
 GENCODE_FLAGS := $(foreach sm, $(SMS), -gencode arch=compute_$(sm),code=sm_$(sm))
@@ -17,7 +17,7 @@ TEST := test_fp32
 
 # cuda core matmul version: MATMUL  src/MMult_v0 or MMult_v1 or ...
 # tensor core matmul version: MATMUL := src/MMult_t_v0 or MMult_t_v1 or ...
-MATMUL := matmul_v1
+MATMUL := matmul_v2
 
 TARGET := results/result_$(MATMUL)_$(TEST).txt
 

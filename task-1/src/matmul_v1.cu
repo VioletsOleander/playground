@@ -29,7 +29,7 @@ __global__ void MatMulFP32(const int m, const int n, const int k,
     if (globalIdx_y < m && globalIdx_x < n) {
         float val = 0.0;
         for (int i = 0; i < k / tileK; i++) { // exact division assumed
-            // be responsible for fetching one element each for tileA and tileB from gm to sm, read global memory twice
+            // be responsible for fetching one element each for tileA and tileB from gm to sm, read global memory twice, write shared memory twice
             // fetch gm_a[globalIdx_y, i * tileK + threadIdx.x] to sm_tileA[threadIdx.y, threadIdx.x]
             sm_tileA[threadIdx.y * tileK + threadIdx.x] = gm_a[globalIdx_y * lda + i * tileK + threadIdx.x];
             // fetch gm_b[i * tileK + threadIdx.y, globalIdx_x] to sm_tileB[threadIdx.y, threadIdx.x]
@@ -42,12 +42,12 @@ __global__ void MatMulFP32(const int m, const int n, const int k,
                 float val_a = sm_tileA[threadIdx.y * tileK + j];      // sm_tileA[threadIdx.y, j]
                 float val_b = sm_tileB[j * blockDim.x + threadIdx.x]; // sm_tileB[j, threadIdx.x]
                 val += val_a * val_b;
-            }
+            } // the loop takes ( 2 * tileK ) shared memory read in total
 
             __syncthreads(); // sync to make sure every thread finished computation so sm_tileA and sm_tileB are allowed to be overwirtten
-        } // the loop takes ( 2 * k/tileK ) global read in total
+        } // the loop takes ( 2 * k/tileK ) global memory read in total, and takes ( 2 * k ) shared memory read in total
         // write global memory once
         gm_c[globalIdx_y * ldc + globalIdx_x] = val;
     }
-    // computation for one output element takes ( 2 * k/tileK + 1 ) global memory access
+    // computation for one output element takes ( 2 * k/tileK + 1 ) global memory access, and takes ( 2 * k + 2 * k/tileK ) shared memory access
 }

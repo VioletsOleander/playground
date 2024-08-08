@@ -9,10 +9,6 @@
 
 #define N_WARMUP 10
 
-// range of matrix elements
-#define ELE_MIN 0
-#define ELE_MAX 1
-
 // A100 GPU properties
 #define N_MULTIPROCESSOR 108 // number of stream multiprocessors per device
 
@@ -30,3 +26,6 @@
 
 #define N_THR_PER_WARP 32   // number of threads per warp
 #define WIDTH_BLOCK_TILE 16 // width of block tile
+
+#define CORSEN_FACTOR 4 // corsen factor
+#define DIVIDER 2       // sqrt(CORSEN_FACTOR)
