@@ -10,8 +10,8 @@ void GenMatFP32(int, int, float *);
 float CompareMat(int, int, float *, float *);
 
 int main() {
-    const int m = M, n = N, k = K;
-    const int lda = K, ldb = N, ldc = N, ldr = N;
+    const int m = _M, n = _N, k = _K;
+    const int lda = _K, ldb = _N, ldc = _N, ldr = _N;
     // printf("Matrix A: (%d * %d), Matrix B: (%d * %d), Matrix C: (%d * %d)\n",
     //    m, k, k, n, m, n);
 
@@ -76,7 +76,7 @@ int main() {
     //    tileDim_m, tileDim_k, tileDim_k, tileDim_n, tileDim_m, tileDim_n);
 
     // shared memory usage by each block tile
-    size_t sMemPerBlk = (tileDim_m * tileDim_k + tileDim_n * tileDim_k) * DIVIDER * sizeof(float);
+    size_t sMemPerBlk = (tileDim_m * tileDim_k + tileDim_n * tileDim_k) * DIVIDER * N_PIPELINE_STAGE * sizeof(float);
     // printf("Shared memory usage: %d bytes per block\n", sMemPerBlk);
     assert(sMemPerBlk < SM_PER_BLOCK);
 
