@@ -8,6 +8,7 @@ void MatMulRef(const int, const int, const int, float *, int, float *, int, floa
 __global__ void MatMulFP32(const int, const int, const int, float *, float *, float *);
 void GenMatFP32(int, int, float *);
 float CompareMat(int, int, float *, float *);
+void TransposeMatFP32(int, int, float *);
 
 int main() {
     const int m = _M, n = _N, k = _K;
@@ -32,6 +33,7 @@ int main() {
     // get reference result
     MatMulRef(m, n, k, h_a, lda, h_b, ldb, h_r, ldr);
 
+    TransposeMatFP32(n, k, h_a);
     // allocate memory in device
     float *d_a, *d_b, *d_r;
 
@@ -71,7 +73,7 @@ int main() {
     const int tileDim_k = BLOCK_TILE_K;
 
     // shared memory usage by each block tile
-    size_t sMemPerBlk = (tileDim_m * tileDim_k + tileDim_n * tileDim_k) * sizeof(float);
+    size_t sMemPerBlk = (tileDim_m * tileDim_k + tileDim_n * tileDim_k) * N_PIPELINE_STAGE * sizeof(float);
     assert(sMemPerBlk < SM_PER_BLOCK);
 
     // run (N_REP+N_WARMUP) times

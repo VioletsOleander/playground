@@ -17,11 +17,11 @@ TEST := test_fp32
 
 # cuda core matmul version: MATMUL  src/MMult_v0 or MMult_v1 or ...
 # tensor core matmul version: MATMUL := src/MMult_t_v0 or MMult_t_v1 or ...
-MATMUL := matmul_v4
+MATMUL := matmul_v5
 
 TARGET := results/result_$(MATMUL)_$(TEST).txt
 
-UTIL_OBJS := compare_mat.o gen_mat.o matmul_ref.o convert_mat.o
+UTIL_OBJS := compare_mat.o gen_mat.o matmul_ref.o convert_mat.o transpose_mat.o
 
 TEST_OBJS := $(TEST).o $(MATMUL).o
 

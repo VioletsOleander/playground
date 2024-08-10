@@ -26,7 +26,7 @@
 #define MAX_THR_PER_BLOCK_Y 1024 // max number of threads in block y dim
 #define MAX_THR_PER_BLOCK_Z 24   // max number of threads in block z dim
 
-#define N_THR_PER_WARP 32 // number of threads per warp
+#define WARP_SIZE 32 // number of threads per warp
 
 #define CORSEN_FACTOR 16 // corsen factor
 #define DIVIDER 2        // sqrt(CORSEN_FACTOR)
