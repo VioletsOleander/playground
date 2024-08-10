@@ -5,7 +5,7 @@
 #include <stdlib.h>
 
 void MatMulRef(const int, const int, const int, float *, int, float *, int, float *, int);
-__global__ void MatMulFP32(const int, const int, const int, const float *, const float *, float *, int offset_x, int offset_y);
+__global__ void MatMulFP32(const int, const int, const int, float *, float *, float *);
 void GenMatFP32(int, int, float *);
 float CompareMat(int, int, float *, float *);
 
@@ -49,48 +49,42 @@ int main() {
     float runTime = 0.0, runTimeSum = 0.0;
 
     // configure kernel launch
-    const int numWarp_blk = 8;
-    const int numThread_blk = numWarp_blk * N_THR_PER_WARP;
-    const int numThreadXDim_blk = sqrt((double)numThread_blk);
-    const int numThreadYDim_blk = numThread_blk / numThreadXDim_blk; // exact division assumed
-    dim3 dimBlock(numThreadXDim_blk, numThreadYDim_blk);
+    dim3 dimBlock(BLOCK_DIM_X, BLOCK_DIM_Y);
 
-    const int numThreadXDim_grid = m;
-    const int numThreadYDim_grid = n;
+    assert(BLOCK_DIM_X * THREAD_TILE_X == BLOCK_TILE_X);
+    assert(BLOCK_DIM_Y * THREAD_TILE_Y == BLOCK_TILE_Y);
+    const int numElementXDim_blk = BLOCK_TILE_X;
+    const int numElementYDim_blk = BLOCK_TILE_Y;
 
-    // thread corsening start from v2
-    const int divider = DIVIDER;
-    const int offset_x = n / divider;
-    const int offset_y = m / divider;
+    const int numElementXDim_grid = m;
+    const int numElementYDim_grid = n;
 
-    const int numBlockXDim_grid = (numThreadXDim_grid / divider + numThreadXDim_blk - 1) / numThreadXDim_blk;
-    const int numBlockYDim_grid = (numThreadYDim_grid / divider + numThreadYDim_blk - 1) / numThreadYDim_blk;
+    const int numBlockXDim_grid = (numElementXDim_grid + numElementXDim_blk - 1) / numElementXDim_blk;
+    const int numBlockYDim_grid = (numElementYDim_grid + numElementYDim_blk - 1) / numElementYDim_blk;
     dim3 dimGrid(numBlockXDim_grid, numBlockYDim_grid);
-    // printf("Grid dim: (%d, %d), Block dim: (%d, %d)\n", dimGrid.x, dimGrid.y, dimBlock.x, dimBlock.y);
 
-    const int tileDim_m = numThreadYDim_blk;
-    const int tileDim_n = numThreadXDim_blk;
-    assert(tileDim_m == tileDim_n); // square tile block assumed
-    const int tileDim_k = WIDTH_BLOCK_TILE;
-    // printf("Blocktile A dim: (%d, %d), BlockTile B dim: (%d, %d), Blocktile C dim: (%d, %d)\n",
-    //    tileDim_m, tileDim_k, tileDim_k, tileDim_n, tileDim_m, tileDim_n);
+    // const int offset_x = n / DIVIDER;
+    // const int offset_y = m / DIVIDER;
+
+    const int tileDim_m = numElementYDim_blk;
+    const int tileDim_n = numElementXDim_blk;
+    const int tileDim_k = BLOCK_TILE_K;
 
     // shared memory usage by each block tile
-    size_t sMemPerBlk = (tileDim_m * tileDim_k + tileDim_n * tileDim_k) * DIVIDER * N_PIPELINE_STAGE * sizeof(float);
-    // printf("Shared memory usage: %d bytes per block\n", sMemPerBlk);
+    size_t sMemPerBlk = (tileDim_m * tileDim_k + tileDim_n * tileDim_k) * sizeof(float);
     assert(sMemPerBlk < SM_PER_BLOCK);
 
     // run (N_REP+N_WARMUP) times
     for (int i = 0; i < (N_REP + N_WARMUP); i++) {
         // warm up
         if (i < N_WARMUP) {
-            MatMulFP32<<<dimGrid, dimBlock, sMemPerBlk>>>(m, n, k, d_a, d_b, d_r, offset_x, offset_y);
+            MatMulFP32<<<dimGrid, dimBlock, sMemPerBlk>>>(m, n, k, d_a, d_b, d_r);
             continue;
         }
         // run and timing N_REP times
         cudaEventRecord(start, NULL);
 
-        MatMulFP32<<<dimGrid, dimBlock, sMemPerBlk>>>(m, n, k, d_a, d_b, d_r, offset_x, offset_y);
+        MatMulFP32<<<dimGrid, dimBlock, sMemPerBlk>>>(m, n, k, d_a, d_b, d_r);
 
         cudaEventRecord(stop, NULL);
         cudaEventSynchronize(stop);

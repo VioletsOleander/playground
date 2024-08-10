@@ -16,7 +16,7 @@ __global__ void MatMulFP32(const int m, const int n, const int k,
 
     // blockDim.x == blockDim.y == tileK is assumed,
     // which means size(tileA partition) == size(tileB partition) == size(block)
-    const int tileK = WIDTH_BLOCK_TILE;
+    const int tileK = BLOCK_TILE_WIDTH;
     const int halfTileK = tileK / 2;
     const int tileNum = k / tileK; // exact divition assumed
 

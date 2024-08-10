@@ -26,8 +26,17 @@
 #define MAX_THR_PER_BLOCK_Y 1024 // max number of threads in block y dim
 #define MAX_THR_PER_BLOCK_Z 24   // max number of threads in block z dim
 
-#define N_THR_PER_WARP 32   // number of threads per warp
-#define WIDTH_BLOCK_TILE 32 // width of block tile
+#define N_THR_PER_WARP 32 // number of threads per warp
 
-#define CORSEN_FACTOR 4 // corsen factor
-#define DIVIDER 2       // sqrt(CORSEN_FACTOR)
+#define CORSEN_FACTOR 16 // corsen factor
+#define DIVIDER 2        // sqrt(CORSEN_FACTOR)
+
+#define BLOCK_TILE_K 8 // width of block tile
+#define STRIDE_IN_TILE 2
+#define BLOCK_DIM_X 16 // thread num in block dim x
+#define BLOCK_DIM_Y 16 // thread num in block dim y
+
+#define BLOCK_TILE_X 128 // element num in block tile x dim
+#define BLOCK_TILE_Y 128 // element num in block tile y dim
+#define THREAD_TILE_X 8  // element num in thread tile x dim
+#define THREAD_TILE_Y 8  // element num in thread tile y dim
