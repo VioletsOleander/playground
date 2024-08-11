@@ -1,11 +1,13 @@
 #include "parameters.h"
 #include <cassert>
+#include <cuda_fp16.h>
 #include <cuda_runtime.h>
 #include <stdio.h>
 #include <stdlib.h>
 
 void MatMulRef(const int, const int, const int, float *, int, float *, int, float *, int);
 __global__ void MatMulFP32(const int, const int, const int, float *, float *, float *);
+__global__ void MatMulFP16(const int, const int, const int, half *, half *, half *);
 void GenMatFP32(int, int, float *);
 float CompareMat(int, int, float *, float *);
 void TransposeMatFP32(int, int, float *);

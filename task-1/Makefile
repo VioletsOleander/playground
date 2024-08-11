@@ -13,11 +13,11 @@ LDFLAGS := -lm -lcublas -lopenblas # used in link
 
 # for testing different versions of matrix multiplication: TEST := tests/test_fp32 or test_fp16
 # for testing cuBLAS: TEST := tests/test_cuBLAS or test_cuBLAS_cudacore_fp32 or test_cuBLAS_tensorcore_fp16
-TEST := test_fp32
+TEST := test_fp16
 
 # cuda core matmul version: MATMUL  src/MMult_v0 or MMult_v1 or ...
 # tensor core matmul version: MATMUL := src/MMult_t_v0 or MMult_t_v1 or ...
-MATMUL := matmul_v7
+MATMUL := matmul_t_v0
 
 TARGET := results/result_$(MATMUL)_$(TEST).txt
 
