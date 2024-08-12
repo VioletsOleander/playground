@@ -1,0 +1,3 @@
+version = 'matmul_t_v1 + test_fp16';
+TFLOPS is: 99.542193
+average error is: 0.001924

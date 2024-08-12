@@ -42,7 +42,7 @@ int main() {
     // get reference result
     MatMulRef(m, n, k, h_a32, lda, h_b32, ldb, h_r32, ldr);
 
-    TransposeMatFP16(n, k, h_a);
+    TransposeMatFP16(m, k, h_a);
 
     // allocate memory in device
     half *d_a, *d_b, *d_c;

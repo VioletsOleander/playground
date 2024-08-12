@@ -17,7 +17,7 @@ TEST := test_fp16
 
 # cuda core matmul version: MATMUL  src/MMult_v0 or MMult_v1 or ...
 # tensor core matmul version: MATMUL := src/MMult_t_v0 or MMult_t_v1 or ...
-MATMUL := matmul_t_v0
+MATMUL := matmul_t_v1
 
 TARGET := results/result_$(MATMUL)_$(TEST).txt
 

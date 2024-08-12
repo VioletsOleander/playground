@@ -31,7 +31,7 @@
 #define CORSEN_FACTOR 16 // corsen factor
 #define DIVIDER 2        // sqrt(CORSEN_FACTOR)
 
-#define BLOCK_TILE_K 32 // width of block tile
+#define BLOCK_TILE_K 16 // width of block tile
 #define STRIDE_IN_TILE 2
 #define BLOCK_DIM_X 16 // thread num in block dim x
 #define BLOCK_DIM_Y 16 // thread num in block dim y
