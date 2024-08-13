@@ -12,7 +12,7 @@
 // A100 GPU properties
 #define N_MULTIPROCESSOR 108 // number of stream multiprocessors per device
 
-#define N_PIPELINE_STAGE 1 // pipeline stages, usage of pipeline starts from v3
+#define N_PIPELINE_STAGE 3 // pipeline stages, usage of pipeline starts from v3
 
 #define SM_PER_MULTIPROCESSOR 167936    // size of shared memory per stream multiprocessor (bytes)
 #define N_REG_PER_MULTIPROCESSOR 65536  // number of registers per stream multiprocessor
@@ -44,3 +44,7 @@
 #define THREAD_TILE_Y 8  // element num in thread tile y dim
 
 #define N_WARP_PER_BLOCK 8
+
+#define FRAG_M 16
+#define FRAG_N 16
+#define FRAG_K 16

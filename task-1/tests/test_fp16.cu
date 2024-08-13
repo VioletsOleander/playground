@@ -77,12 +77,12 @@ int main() {
     // const int offset_x = n / DIVIDER;
     // const int offset_y = m / DIVIDER;
 
-    const int tileDim_m = numElementYDim_blk;
-    const int tileDim_n = numElementXDim_blk;
+    const int tileDim_y = numElementYDim_blk + FRAG_M;
+    const int tileDim_x = numElementXDim_blk + FRAG_N;
     const int tileDim_k = BLOCK_TILE_K;
 
     // shared memory usage by each block tile
-    size_t sMemPerBlk = (tileDim_m * tileDim_k + tileDim_n * tileDim_k) * N_PIPELINE_STAGE * sizeof(half);
+    size_t sMemPerBlk = (tileDim_y * tileDim_k + tileDim_x * tileDim_k) * N_PIPELINE_STAGE * sizeof(half);
     assert(sMemPerBlk < SM_PER_BLOCK);
 
     // run (N_REP+N_WARMUP) times
