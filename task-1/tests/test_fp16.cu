@@ -42,7 +42,7 @@ int main() {
     // get reference result
     MatMulRef(m, n, k, h_a32, lda, h_b32, ldb, h_r32, ldr);
 
-    TransposeMatFP16(m, k, h_a);
+    TransposeMatFP16(k, n, h_b);
 
     // allocate memory in device
     half *d_a, *d_b, *d_c;
@@ -77,13 +77,13 @@ int main() {
     // const int offset_x = n / DIVIDER;
     // const int offset_y = m / DIVIDER;
 
-    const int tileDim_y = numElementYDim_blk + FRAG_M;
-    const int tileDim_x = numElementXDim_blk + FRAG_N;
+    const int tileDim_y = numElementYDim_blk;
+    const int tileDim_x = numElementXDim_blk;
     const int tileDim_k = BLOCK_TILE_K;
 
     // shared memory usage by each block tile
-    size_t sMemPerBlk = (tileDim_y * tileDim_k + tileDim_x * tileDim_k) * N_PIPELINE_STAGE * sizeof(half);
-    assert(sMemPerBlk < SM_PER_BLOCK);
+    size_t sMemPerBlk = (tileDim_y + tileDim_x) * tileDim_k * sizeof(half) * N_PIPELINE_STAGE;
+    assert(sMemPerBlk <= SM_PER_BLOCK);
 
     // run (N_REP+N_WARMUP) times
     for (int i = 0; i < (N_REP + N_WARMUP); i++) {
