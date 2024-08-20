@@ -31,19 +31,19 @@
 #define CORSEN_FACTOR 16 // corsen factor
 #define DIVIDER 2        // sqrt(CORSEN_FACTOR)
 
-#define BLOCK_TILE_K 32 // width of block tile
+#define BLOCK_TILE_K 16 // width of block tile
 #define STRIDE_IN_TILE 2
-#define BLOCK_DIM_X 128 // thread num in block dim x
+#define BLOCK_DIM_X 256 // thread num in block dim x
 #define BLOCK_DIM_Y 1   // thread num in block dim y
 
 #define BLOCK_TILE_X 128 // element num in block tile x dim
-#define BLOCK_TILE_Y 128 // element num in block tile y dim
+#define BLOCK_TILE_Y 256 // element num in block tile y dim
 #define WARP_TILE_X 64   // element num in warp tile x dim
 #define WARP_TILE_Y 64   // element num in warp tile y dim
 #define THREAD_TILE_X 8  // element num in thread tile x dim
 #define THREAD_TILE_Y 8  // element num in thread tile y dim
 
-#define N_WARP_PER_BLOCK 4
+#define N_WARP_PER_BLOCK 8
 
 #define FRAG_M 16
 #define FRAG_N 8
